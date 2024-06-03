@@ -11,25 +11,36 @@ enum Token {
     OptionalQuantifier,
 }
 
+#[allow(dead_code)]
+#[derive(PartialEq)]
+enum Associativity {
+    Left,
+    Right,
+}
+
 impl Token {
-    const PRECEDENCES: [(Token, u8); 6] = [
-        (Token::KleeneQuantifier, 3),
-        (Token::PositiveQuantifier, 3),
-        (Token::OptionalQuantifier, 3),
-        (Token::Wildcard, 3),
-        (Token::Concatenation, 2),
-        (Token::Union, 1),
+    const PRECEDENCES: [(Token, u8, Associativity); 6] = [
+        (Token::KleeneQuantifier, 3, Associativity::Left),
+        (Token::PositiveQuantifier, 3, Associativity::Left),
+        (Token::OptionalQuantifier, 3, Associativity::Left),
+        (Token::Wildcard, 3, Associativity::Left),
+        (Token::Concatenation, 2, Associativity::Left),
+        (Token::Union, 1, Associativity::Left),
     ];
-    fn precedence(&self) -> u8 {
-        for (token, score) in Self::PRECEDENCES {
+    fn precedence(&self) -> (u8, Associativity) {
+        for (token, score, associativity) in Self::PRECEDENCES {
             if *self == token {
-                return score;
+                return (score, associativity);
             }
         }
-        return 4;
+        return (4, Associativity::Left);
     }
-    fn has_greater_precendence(&self, other: Token) -> bool {
-        return self.precedence() > other.precedence();
+    fn has_greater_precedence(&self, other: Token) -> bool {
+        let (precedence, _) = self.precedence();
+        let (other_precedence, other_associativity) = other.precedence();
+
+        return (precedence > other_precedence)
+            | (precedence == other_precedence && other_associativity == Associativity::Left);
     }
 }
 
@@ -113,7 +124,7 @@ fn calc_postfix(tokens: Vec<Token>) -> Vec<Token> {
             Token::Union | Token::Concatenation => {
                 while operators.len() > 0
                     && *operators.last().unwrap() != Token::OpenParenthesis
-                    && !token.has_greater_precendence(*operators.last().unwrap())
+                    && operators.last().unwrap().has_greater_precedence(*token)
                 {
                     postfix.push(operators.pop().unwrap());
                 }
