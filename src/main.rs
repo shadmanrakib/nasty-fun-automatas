@@ -7,9 +7,8 @@ mod tests;
 
 fn main() {
     // operations
-    // | - union, . - wildcard, * - kleene, () - groups, ? - optional
+    // | - union, . - wildcard, * - kleene, () - groups, ? - optional, + more than zero, \ - escape
+    // " " is a space
+    // spaces are not ignored
     // concat is implicit
-    // let regex = "pens?".to_string();
-    // println!("tokens: {:?}", parse_re_to_tokens(regex.clone()));
-    // println!("postfix: {:?}", calc_postfix(parse_re_to_tokens(regex)));
 }
