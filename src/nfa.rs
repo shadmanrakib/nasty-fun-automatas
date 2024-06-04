@@ -125,7 +125,7 @@ impl NFA {
         // turn fragment to NFA
         let start_id = fragments[0].start_id;
         // make last node accepting
-        states[fragments[0].out_id].accepting = true;
+        states[fragments[0].out_id].set_accepting(true);
         // we have all the info we need to create NFA
         NFA { start_id, states }
     }
