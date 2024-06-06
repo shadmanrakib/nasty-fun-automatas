@@ -1,5 +1,5 @@
 [package]
-name = "nasty-fun-automatas"
+name = "nasty_fun_automatas"
 version = "0.1.0"
 edition = "2021"
 
