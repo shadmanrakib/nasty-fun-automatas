@@ -14,11 +14,9 @@ pub struct Regex {
 
 #[wasm_bindgen]
 impl Regex {
-    #[wasm_bindgen(constructor)]
-    pub fn new(str: String) -> Self {
-        Regex {
-            nfa: nfa::NFA::from_regex(&str),
-        }
+    pub fn new(str: String) -> Option<Regex> {
+        let nfa = nfa::NFA::from_regex(&str)?;
+        Some(Regex { nfa })
     }
     #[allow(non_snake_case)]
     pub fn isMatch(&self, input: String) -> bool {

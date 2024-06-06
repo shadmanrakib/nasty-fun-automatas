@@ -107,42 +107,109 @@ pub fn parse_re_to_tokens(re: &String) -> Vec<Token> {
     tokens
 }
 
-// Shunting Yard Algorithm
+fn str_count_diff(op: &Token) -> i32 {
+    match op {
+        // increases count
+        Token::Letter(_) => 1,
+        Token::Wildcard => 1,
+        Token::CloseParenthesis => 1, // should be 1 valid string if inside of () is regex
+        // consumes 2, produces one
+        Token::Concatenation => -1,
+        Token::Union => -1,
+        // keeps count the same
+        Token::KleeneQuantifier => 0,
+        Token::PositiveQuantifier => 0,
+        Token::OptionalQuantifier => 0,
+        Token::OpenParenthesis => 0,
+    }
+}
+
+// Modified Shunting Yard Algorithm
 // TODO: Validate regex
-pub fn calc_postfix(tokens: Vec<Token>) -> Vec<Token> {
+pub fn calc_postfix(tokens: Vec<Token>) -> Option<Vec<Token>> {
     let mut operators = vec![];
     let mut postfix: Vec<Token> = vec![];
+
+    let mut num_strs: i32 = 0;
+    let mut preservation_stack: Vec<i32> = vec![];
 
     for token in tokens.iter() {
         match token {
             Token::OpenParenthesis => {
+                // we need to perserve the num of strs before the parentheses
+                // to validate the larger regex and reset count to validate
+                // the regex inside of the parentheses
+                preservation_stack.push(num_strs);
+                num_strs = 0;
+
                 operators.push(Token::OpenParenthesis);
             }
             Token::CloseParenthesis => {
-                while operators.len() > 0 && *operators.last().unwrap() != Token::OpenParenthesis {
-                    postfix.push(operators.pop().unwrap());
+                // nothing to close, malformed parentheses group
+                if preservation_stack.len() == 0 {
+                    return None;
                 }
+
+                while operators.len() > 0 && *operators.last().unwrap() != Token::OpenParenthesis {
+                    let op = operators.pop().unwrap();
+                    postfix.push(op);
+                    num_strs += str_count_diff(&op);
+                }
+
+                // a regex should only result in one string
+                if num_strs != 1 {
+                    return None;
+                }
+
                 // pop off open parenthesis
                 operators.pop();
+
+                // we need to restore the prev string count
+                if let Some(s) = preservation_stack.pop() {
+                    num_strs = s;
+                }
+                num_strs += str_count_diff(token);
             }
-            Token::Union | Token::Concatenation => {
+            // operators
+            Token::Union
+            | Token::Concatenation
+            | Token::KleeneQuantifier
+            | Token::OptionalQuantifier
+            | Token::PositiveQuantifier => {
+                // these operators require at least one str before them
+                if num_strs <= 0 {
+                    return None;
+                }
+
                 while operators.len() > 0
                     && *operators.last().unwrap() != Token::OpenParenthesis
                     && operators.last().unwrap().has_greater_precedence(*token)
                 {
-                    postfix.push(operators.pop().unwrap());
+                    let op = operators.pop().unwrap();
+                    postfix.push(op);
+                    num_strs += str_count_diff(&op);
                 }
                 operators.push(*token);
             }
-            c => {
-                postfix.push(c.clone());
+            // char matches
+            Token::Letter(_) | Token::Wildcard => {
+                // for letters and wildcards it should increment by 1
+                num_strs += str_count_diff(token);
+                postfix.push(token.clone());
             }
         }
     }
 
     while operators.len() > 0 {
-        postfix.push(operators.pop().unwrap());
+        let op = operators.pop().unwrap();
+        postfix.push(op);
+        num_strs += str_count_diff(&op);
     }
 
-    postfix
+    // a regex should only result in one string and no malformed parenthesis should work
+    if preservation_stack.len() > 0 || num_strs != 1 {
+        return None;
+    }
+
+    Some(postfix)
 }

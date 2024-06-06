@@ -46,10 +46,6 @@ impl State {
         self.num_transitions += 1;
         self
     }
-    fn with_accepting(mut self, accepting: bool) -> Self {
-        self.accepting = accepting;
-        self
-    }
     fn add_transition(&mut self, transition: Transition) {
         self.transitions[self.num_transitions] = transition;
         self.num_transitions += 1;
@@ -70,9 +66,23 @@ pub struct NFA {
 }
 
 impl NFA {
-    pub fn from_regex(re: &String) -> NFA {
+    pub fn from_regex(re: &String) -> Option<NFA> {
         let tokens = parse_re_to_tokens(re);
-        let postfix = calc_postfix(tokens);
+
+        // if the postfix is invalid (None), we cannot construct
+        // an NFA because we we're provided with an invalid regex
+        // so we propogate the None
+        let postfix = calc_postfix(tokens)?;
+
+        // when we have an empty regex, treat it as an empty language
+        // so never matches
+        if postfix.len() == 0 {
+            return Some(NFA::empty_language());
+        }
+
+        // we will liberally use unwraps since we know an NFA can
+        // be constructed since we validated the input regex when
+        // constructing the NFA
 
         let mut states: Vec<State> = vec![];
         let mut fragments: Vec<NFAFragement> = vec![];
@@ -127,6 +137,16 @@ impl NFA {
         // make last node accepting
         states[fragments[0].out_id].set_accepting(true);
         // we have all the info we need to create NFA
+        Some(NFA { start_id, states })
+    }
+    fn empty_language() -> NFA {
+        let mut states = Vec::<State>::with_capacity(2);
+        let start_id = states.len();
+        let start = State::new();
+        let mut out = State::new();
+        out.set_accepting(true);
+        states.push(start);
+        states.push(out);
         NFA { start_id, states }
     }
     fn add_single_transition_fragment(
