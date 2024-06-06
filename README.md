@@ -10,6 +10,29 @@ This project implements a Rust library for regular expression matching using Non
 - Match strings against the constructed NFA.
 - WebAssembly support for easy integration with JavaScript.
 
+## Installation
+
+To use this library, you need to have the following tools installed:
+
+- [Rust](https://www.rust-lang.org/tools/install)
+- [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
+
+### Build
+
+To build the project, run:
+
+```sh
+wasm-pack build
+```
+
+### Test
+
+To run the tests, use:
+
+```sh
+cargo test
+```
+
 ## Regular Expression Language
 
 The regular expression language supported by this library is a subset of typical regex features, allowing for the construction of NFAs that can handle common pattern matching tasks. Here’s a summary of the supported syntax:
@@ -91,29 +114,6 @@ Here are a few examples demonstrating the usage of the regex language:
 - **src/parse.rs**: Contains the parsing logic to convert regular expressions into tokens and then into postfix notation.
 - **src/lib.rs**: The main library file that exposes the `Regex` struct and its methods via `wasm-bindgen`.
 - **src/tests.rs**: Contains the test cases for the library.
-
-## Installation
-
-To use this library, you need to have the following tools installed:
-
-- [Rust](https://www.rust-lang.org/tools/install)
-- [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
-
-### Build
-
-To build the project, run:
-
-```sh
-wasm-pack build
-```
-
-### Test
-
-To run the tests, use:
-
-```sh
-cargo test
-```
 
 ## Usage
 
