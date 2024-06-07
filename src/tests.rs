@@ -14,6 +14,7 @@ fn valid_regex_test() {
                 ("pens", true),
                 ("pens?", false),
                 ("spens", false),
+                ("pencil", false),
             ],
         ),
         (
