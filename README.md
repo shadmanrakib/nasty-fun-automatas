@@ -135,7 +135,7 @@ assert!(is_match);
 After building the project with `wasm-pack`, you can use the generated WebAssembly module in JavaScript:
 
 ```js
-import init, { Regex } from './your_crate';
+import init, { Regex } from './nasty_fun_automatas';
 
 async function run() {
     await init();
