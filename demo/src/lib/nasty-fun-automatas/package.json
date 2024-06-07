@@ -1,0 +1,14 @@
+{
+  "name": "nasty_fun_automatas",
+  "version": "0.1.0",
+  "files": [
+    "nasty_fun_automatas_bg.wasm",
+    "nasty_fun_automatas.js",
+    "nasty_fun_automatas.d.ts"
+  ],
+  "module": "nasty_fun_automatas.js",
+  "types": "nasty_fun_automatas.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
