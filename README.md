@@ -4,6 +4,8 @@ I wanted to build a Regex library using theory I learned in an Automata course. 
 
 This project implements a Rust library for regular expression matching using Non-deterministic Finite Automaton (NFA). It includes bindings for WebAssembly using `wasm-bindgen`, allowing for use in many JavaScript environments.
 
+You can view a basic demo here: https://nasty-fun-automatas.vercel.app/.
+
 ## Features
 
 - Construct NFAs from regular expressions.
